@@ -36,6 +36,7 @@ print(f"X: {X}")
 print(f"F: {F}")
 print(f"G: {G}")
 
+# Código de Verificação para garantir que os resultados foram salvos corretamente
 print("\n=== VERIFICAÇÃO (PLOTS) ===")
 print("Shape de X:", X.shape if X is not None else None)
 print("Soma de F:", np.sum(F) if F is not None else None)
@@ -135,7 +136,7 @@ except:
 # Rodar a simulação para a melhor solução
 sim = Simulation()
 sim.configFluxUC2Bat(SoC_uc_ref, BH, Taxa)
-sim.setParam_Batt(C=modelos_bateria[best_modelo_b]['capacidade_Ah'], Ns=Ns_b, Np=best_Np_b, Nm=best_Nm_b, Vnom=modelos_bateria[best_modelo_b]['tensao_nominal_V'], SoC=50, T_m=modelos_bateria[best_modelo_b]['c_rate'])
+sim.setParam_Batt(C=modelos_bateria[best_modelo_b]['capacidade_Ah'], Rcell=modelos_bateria[best_modelo_b]['R_cell'], Ns=Ns_b, Np=best_Np_b, Nm=best_Nm_b, Vnom=modelos_bateria[best_modelo_b]['tensao_nominal_V'], SoC=50, T_m=modelos_bateria[best_modelo_b]['c_rate'])
 sim.setParam_UC(C=3400, Cap_uc=Cap_uc, Ns=Ns_uc, Np=best_Np_uc, Nm=best_Nm_uc, Vnom=3, SoC=50, T_m=T_xuc)
 sim.simulate(data, sheet, best_Pth)
 

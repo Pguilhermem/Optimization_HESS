@@ -59,10 +59,11 @@ class Simulation():
         self._hysteresis_flag = 0
         self._uc_hyst_mode_vector = []
 
-    def setParam_Batt(self, C: float, Ns: int, Np: int, Nm: int, Vnom: float, SoC: float, T_m: int) -> None:
+    def setParam_Batt(self, C: float, Rcell: float, Ns: int, Np: int, Nm: int, Vnom: float, SoC: float, T_m: int) -> None:
         """
         Configura parâmetros da bateria
         :param float C: Taxa de descarga da bateria (Ah)
+        :param float Rcell: Resistência interna da célula (Ohms)
         :param int Ns: Número de baterias em série
         :param int Np: Número de baterias em paralelo
         :param int Nm: Número de módulos
@@ -73,6 +74,7 @@ class Simulation():
         """
         self._batt_params = {
             'C': C,
+            'Rcell': Rcell,
             'Ns': Ns,
             'Np': Np,
             'Nm': Nm,
@@ -80,7 +82,7 @@ class Simulation():
             'SoC': SoC,
             'T_m': T_m
         }
-        self._batt.setParams(C, Ns, Np, Nm, Vnom, SoC, T_m)
+        self._batt.setParams(C, Rcell, Ns, Np, Nm, Vnom, SoC, T_m)
 
     def setParam_UC(self, C: float, Cap_uc: float, Ns: int, Np: int, Nm : int, Vnom: float, SoC: float, T_m: int) -> None:
         """Configura parâmetros do supercapacitor
@@ -186,7 +188,7 @@ class Simulation():
         """Executa simulação
         :param str data: Caminho para arquivo de dados
         :param str sheet: Nome da planilha
-        :param float threshold: Limiar de potência para distribuição (kW)
+        :param float threshold: Limiar de potência para distribuição (kW)p
         """
         data = pd.read_excel(data, sheet_name=sheet)
         data["Time"] = range(0, len(data))
@@ -343,6 +345,7 @@ class Simulation():
         data = {
             "Tempo"          : range(0, len(self._SoC)),
             "C_bat"          : self._batt_params['C'],
+            "Rcell_bat"      : self._batt_params['Rcell'],
             "Ns_bat"         : self._batt_params['Ns'],
             "Np_bat"         : self._batt_params['Np'],
             "Nm_bat"         : self._batt_params['Nm'],
@@ -405,6 +408,7 @@ if __name__ == "__main__":
 
     params_batt = {
         "C"     :   40,
+        "R_cell":  0.7e-3,
         "Ns"    :   16,
         "Np"    :   5,
         "Nm"    :   30,
@@ -431,6 +435,7 @@ if __name__ == "__main__":
     sim = Simulation()
     sim.configFluxUC2Bat(SoC_uc_ref, BH, Taxa)
     sim.setParam_Batt(C     =   params_batt["C"], 
+                      Rcell =   params_batt["R_cell"],
                       Ns    =   params_batt["Ns"], 
                       Np    =   params_batt["Np"], 
                       Nm    =   params_batt["Nm"], 
