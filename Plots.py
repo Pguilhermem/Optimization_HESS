@@ -136,7 +136,7 @@ except:
 # Rodar a simulação para a melhor solução
 sim = Simulation()
 sim.configFluxUC2Bat(SoC_uc_ref, BH, Taxa)
-sim.setParam_Batt(C=modelos_bateria[best_modelo_b]['capacidade_Ah'], Rcell=modelos_bateria[best_modelo_b]['R_cell'], Ns=Ns_b, Np=best_Np_b, Nm=best_Nm_b, Vnom=modelos_bateria[best_modelo_b]['tensao_nominal_V'], SoC=50, T_m=modelos_bateria[best_modelo_b]['c_rate'])
+sim.setParam_Batt(C=modelos_bateria[best_modelo_b]['capacidade_Ah'], Rcell=modelos_bateria[best_modelo_b]['R_cell'], Ns=Ns_b, Np=best_Np_b, Nm=best_Nm_b, Vnom=modelos_bateria[best_modelo_b]['tensao_nominal_V'], SoC=50, C_rate_carga=modelos_bateria[best_modelo_b]['c_rate_carga'], C_rate_descarga=modelos_bateria[best_modelo_b]['c_rate_descarga'])
 sim.setParam_UC(C=3400, Cap_uc=Cap_uc, Ns=Ns_uc, Np=best_Np_uc, Nm=best_Nm_uc, Vnom=3, SoC=50, T_m=T_xuc)
 sim.simulate(data, sheet, best_Pth)
 

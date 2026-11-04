@@ -26,13 +26,15 @@ modelos_bateria = {
         "capacidade_Ah": 40,
         "tensao_nominal_V": 3.2,
         "tensao_maxima_V": 3.65,
-        "c_rate": 6,
+        "c_rate_carga": 6,
+        "c_rate_descarga": 6,
         "preco_usd": 36.62,
-        "volume_m3": 0.596,    #L, Volume da célula?
+        "volume_m3": 0.596e-3,    #L, Volume da célula?
         "peso_kg": 1.085,       #kg
         "vida_ciclos": 4000,
         "SOC_inicial": 20,
         "R_cell": 0.7e-3, # Ohms, resistência interna da célula
+        "LUT": "data\\LUT_batt.csv"
     },
     1: {
         "nome": "LFP_60Ah",                 #Genérico para teste
@@ -40,13 +42,15 @@ modelos_bateria = {
         "capacidade_Ah": 60,
         "tensao_nominal_V": 3.2,
         "tensao_maxima_V": 3.65,
-        "c_rate": 4,
+        "c_rate_carga": 4,
+        "c_rate_descarga":4,
         "preco_usd": 28.5,
-        "volume_m3": 0.596,    #L
+        "volume_m3": 0.754e-3,    #L
         "peso_kg": 1.5,       #kg
         "vida_ciclos": 2000,  
         "SOC_inicial": 20,
-        "R_cell": 0.7e-3, # Ohms, resistência interna da célula
+        "R_cell": 1e-3, # Ohms, resistência interna da célula
+        "LUT": "data\\LUT_batt.csv"
     },
     2: {
         "nome": "Na_50Ah",                 #Genérico para teste
@@ -54,13 +58,15 @@ modelos_bateria = {
         "capacidade_Ah": 50,
         "tensao_nominal_V": 2.85,
         "tensao_maxima_V": 3.5,
-        "c_rate": 0.5,
+        "c_rate_carga": 0.5,
+        "c_rate_descarga": 0.5,
         "preco_usd": 27.5,
-        "volume_m3": 0.596,    #L
+        "volume_m3": 0.955e-3,    #L
         "peso_kg": 1.65,       #kg
         "vida_ciclos": 8000,  
         "SOC_inicial": 20,
-        "R_cell": 0.7e-3, # Ohms, resistência interna da célula
+        "R_cell": 0.5e-3, # Ohms, resistência interna da célula
+        "LUT": "data\\LUT_batt.csv"
     }
 }
 
@@ -101,9 +107,6 @@ taxa_disponibilidade = 0.8  # 80% de disponibilidade diária
 
 dias_por_mes = 30  # Considerando 30 dias por mês
 
-# Degradação dos componentes
-#ciclos_bateria_vida = 5300  # ciclos até 80% da capacidade (Baseado no datasheet da bateria)
-horas_supercap_vida = 1000000  # horas até 80% da capacidade (Baseado no datasheet do supercapacitor)
 
 # Parâmetros financeiros para VPL
 horizonte_analise_meses = 60  # 5 anos
@@ -112,12 +115,6 @@ horizonte_analise_meses = 60  # 5 anos
 taxa_desconto_anual = 0.10                                          # Taxa minima de atratividade anual 
 
 taxa_desconto_mensal = (1 + taxa_desconto_anual) ** (1/12) - 1      # TMA mensal calculada a partir da TMA anual
-
-# Caracteristicas bateria
-#vb_nom = 3.25
-#vb_max = 3.65
-
-vuc_max = 3
 
 # Definições relativas a otmização
 step_pth = 25                                                                                   # Step entre as potências de limiares simuladas
@@ -128,12 +125,12 @@ max_pth = round((potencia_de_limiar_max - potencia_de_limiar_min) / step_pth) + 
 
 
 Ns_b = 16                                                           # Número de baterias em serie
-Ns_uc = 16                                                          # Número de supercapacitores em serie
+Ns_aux = 16                                                          # Número de supercapacitores em serie
 
-min_Nm_uc = 11                                                      # Número minimo de modulos de supercapacitor
-max_Nm_uc = 31                                                      # Número máximo de modulos de supercapacitor (Não extrapolar 1500 V)
-min_Np_uc = 1                                                       # Número minimo de supercapacitores em paralelo
-max_Np_uc = 7                                                       # Número máximo de supercapacitores em paralelo
+min_Nm_aux = 11                                                      # Número minimo de modulos de supercapacitor
+max_Nm_aux = 31                                                      # Número máximo de modulos de supercapacitor (Não extrapolar 1500 V)
+min_Np_aux = 1                                                       # Número minimo de supercapacitores em paralelo
+max_Np_aux = 7                                                       # Número máximo de supercapacitores em paralelo
 
 min_Nm_b = 15                                                       # Número minimo de modulos de bateria em serie                                                  
 max_Nm_b = 28                                                       # Número maximo de modulos de bateria em serie (Não extrapolar 1500 V)
@@ -141,43 +138,38 @@ min_Np_b = 1                                                        # Número m�
 max_Np_b = 8                                                       # Número máximo de ramos
 
 i_SoC_Bat = 20
-i_SoC_UC = 3
+i_SoC_aux = 3
 
 # Definição dos parametros do problema
 cot_dolar = 5.30                                                    # Valor sugerido pelo Guilherme
 # Pb = 28.00                                                          # Preço da bateria em dolares (Fonte: data_sources.xlsx)
 # Puc = 53.75                                                         # Preço do supercapacitor em dolares (Fonte: data_sources.xlsx)
 #Pb= 12.8                                                            # Preço da bateria em dolares (Sugestão Guilherme)
-Puc= 9.75                                                           # Preço do supercapacitor em dolares (Sugestão Guilherme)
+#Puc= 9.75                                                           # Preço do supercapacitor em dolares (Sugestão Guilherme)
 
 #Vb = 0.596                                                          # Volume da bateria em L (Fonte: data_sources.xlsx)
-Vuc = 0.496                                                         # Volume do supercapacitor em L (Fonte: data_sources.xlsx)
+#Vuc = 0.496                                                         # Volume do supercapacitor em L (Fonte: data_sources.xlsx)
 volume_maximo = (np.pi * (26/2)**2 * 65 * 1e-6) * 41000             # Volume máximo hipotetico, em L. pi * r^2 * h <- volume da bateria de referencia, vezes o numero maximo de baterias de referencias.
 
 #Wb = 1.060                                                          # Peso da bateria em kg (Fonte: data_sources.xlsx)
-Wuc = 0.460                                                         # Peso do supercapacitor em kg (Fonte: data_sources.xlsx)
+#Wuc = 0.460                                                         # Peso do supercapacitor em kg (Fonte: data_sources.xlsx)
 
 
 
 #Cap_b = 40.0                                                        # Capacidade da bateria em Ah
 #T_xb = 6                                                            # Multiplicador da capacidade da bateria
-Cap_uc = 280.0                                                      # Capacidade do supercapacitor em Ah
-T_xuc = 8                                                           # Multiplicador da capacidade do supercapacitor
+#Cap_uc = 280.0                                                      # Capacidade do supercapacitor em Ah
+#T_xuc = 8                                                           # Multiplicador da capacidade do supercapacitor
 
 
 # Variáveis para otimização
-SoC_uc_ref = 50
+SoC_aux_ref = 50
 BH = 4
 Taxa = 0.5
 arquivo = "UMAX_18-10-24.xlsx"
 diretorio_figuras = "Figuras/" + arquivo.split(".")[0]
 data = "data/" + arquivo
 sheet = "Log"
-
-#Tirar dps
-#Dimensões das figuras em centímetros
-fig_width_cm = 24/2.4
-fig_height_cm = 18/2.4
 
 
 # Definição do problema de otimização
@@ -253,18 +245,18 @@ class MyOutput(Output):
 class MyProblem(ElementwiseProblem):
 
     def __init__(self):
-        super().__init__(n_var=6,                                                               # Nm_b, Np_b, Nm_uc, Np_uc e Pth
+        super().__init__(n_var=7,                                                               # Nm_b, Np_b, Nm_uc, Np_uc e Pth
                          n_obj=1,                                                               # VPL
                          n_ieq_constr=1,                                                        # Restrição de volume para os elementos armazenadores
-                         xl=np.array([min_Nm_b, min_Np_b, min_Nm_uc, min_Np_uc, min_pth, 0]),      # Mínimo de 1 para cada elemento armazenador e 0 para potencia (0 kW)
-                         xu=np.array([max_Nm_b, max_Np_b, max_Nm_uc, max_Np_uc, max_pth, len(modelos_bateria)-1]),      # Máximo de 10 para elementos armazenados e 80 para potência (2000 kW)
+                         xl=np.array([min_Nm_b, min_Np_b, min_Nm_aux, min_Np_aux, min_pth, 0, 0]),      # Mínimo de 1 para cada elemento armazenador e 0 para potencia (0 kW)
+                         xu=np.array([max_Nm_b, max_Np_b, max_Nm_aux, max_Np_aux, max_pth, len(modelos_bateria)-1, len(modelos_bateria)-1]),      # Máximo de 10 para elementos armazenados e 80 para potência (2000 kW)
                          type_var=np.int64)                                                     # Especificando que as variáveis são inteiros
         self.simulation_cache = {}
         self._preco_diesel = preco_diesel
         self._cot_dolar = cot_dolar
         self._preco_razao_elepot = preco_razao_elepot
         #self._Pb = modelos_bateria[0]["preço_usd"]
-        self._Puc = Puc
+        #self._Puc = Puc
         #self._T_xb = T_xb # C-rate
 
     def setData(self, data: str, sheet: str):
@@ -284,81 +276,82 @@ class MyProblem(ElementwiseProblem):
         self._cot_dolar = dict["Cotacao Dolar"]
         self._preco_razao_elepot = dict["Preco Razao Elepot"]
         #self._Pb = dict["Preco Bat"]
-        self._Puc = dict["Preco UC"]
+        #self._Puc = dict["Preco UC"]
         #self._T_xb = dict["C-rate"]
 
         print(f"""CONFERENCIA: Preço Diesel         : {self._preco_diesel};
                                Cotação Dolar        : {self._cot_dolar};
                                Preço Elepot:        : {self._preco_razao_elepot};   Corrigido Dolar: {self._preco_razao_elepot * self._cot_dolar}
-                               Preço Supercapacitor : {self._Puc};                  Corrigido Dolar: {self._Puc * self._cot_dolar}
                                """)
         """
         Retirados
         1. Preço da bateria, pois o preço da bateria é definido pelo modelo de bateria selecionado: Preço bateria        : {self._Pb};                   Corrigido Dolar: {self._Pb * self._cot_dolar};   
         2. C-rate da bateria, pois o c-rate da bateria é definido pelo modelo de bateria selecionado: C-Rate Bateria       : {self._T_xb}
+        3. Preço do Supercapacitor
         """
         # sleep(10)
 
-    def configFluxUC2Bat(self, SoC_uc_ref = 50.0 , BH = 2.0, Taxa = 0.01) -> None:
+    def configHist_BattAux(self, SoC_aux_ref = 50.0 , BH = 2.0) -> None:
         """
         Configura a histerese do sistema.\n
         :param float SoC_uc_ref: Setpoint para o estado de carga do supercapacitor. \\n
         :param float BH: Banda de histerese, em SoC, para o supercapacitor.  \n
         :param int Taxa: Taxa (1~8C) na qual o SC descarrega na bateria. \n
         """
-        self._SoC_uc_ref = SoC_uc_ref
+        self._SoC_aux_ref = SoC_aux_ref
         self._BH = BH
-        self._Taxa_ref = Taxa
 
     def _evaluate(self, x, out, *args, **kwargs):
         Nm_b = int(round(x[0]))                                 # Numero de modulos de baterias
         Np_b = int(round(x[1]))                                 # Número de baterias em paralelo
-        Nm_uc = int(round(x[2]))                                # Número de modulos de supercapacitor
-        Np_uc = int(round(x[3]))                                # Número de supercapacitores em paralelo
+        Nm_aux = int(round(x[2]))                                # Número de modulos de supercapacitor
+        Np_aux = int(round(x[3]))                                # Número de supercapacitores em paralelo
         Pth = step_pth * int(round(x[4]))                       # Variavel relativa a potencia
 
         modelo_b = int(round(x[5]))                       # Índice do modelo de bateria selecionado
+        modelo_b_aux = int(round(x[6]))
         modelo = modelos_bateria[modelo_b]                # modelo selecionado da bateria
+        modelo_aux = modelos_bateria[modelo_b_aux]
         # Cálculo do número total de componentes
         total_baterias = Np_b * Nm_b * Ns_b
-        total_supercaps = Np_uc * Nm_uc * Ns_uc
+        total_bat_aux = Np_aux * Nm_aux * Ns_aux
 
         # Calcula o volume total dos elementos armazenadores
-        g1 = (modelo['volume_m3'] * total_baterias) + (Vuc * total_supercaps)
+        g1 = (modelo['volume_m3'] * total_baterias) + (modelo_aux['volume_m3'] * total_bat_aux)
         G =  g1 - volume_maximo
 
 
         # Cálculo do custo inicial (investimento)
-        custo_inicial = (total_baterias * modelo['preco_usd'] * self._cot_dolar) + (total_supercaps * self._Puc * self._cot_dolar) + (total_elepot * self._preco_razao_elepot * self._cot_dolar)
+        custo_inicial = (total_baterias * modelo['preco_usd'] * self._cot_dolar) + (total_bat_aux * modelo_aux['preco_usd'] * self._cot_dolar) + (total_elepot * self._preco_razao_elepot * self._cot_dolar)
 
         # Simulação para calcular energia rejeitada
-        cache_key = (Nm_b, Np_b, Nm_uc, Np_uc, Pth, modelo_b)
+        cache_key = (Nm_b, Np_b, Nm_aux, Np_aux, Pth, modelo_b, modelo_b_aux)
         if cache_key not in self.simulation_cache:
             sim = Simulation()
-            sim.setParam_Batt(C=modelo['capacidade_Ah'], Rcell=modelo['R_cell'], Ns=Ns_b, Np=Np_b, Nm=Nm_b, Vnom=modelo['tensao_nominal_V'], SoC=modelo['SOC_inicial'], T_m = modelo['c_rate'])
-            sim.setParam_UC(C=3140, Cap_uc=Cap_uc, Ns=Ns_uc, Np=Np_uc, Nm=Nm_uc, Vnom=3, SoC=i_SoC_UC, T_m=T_xuc)
-            sim.configFluxUC2Bat(self._SoC_uc_ref, self._BH, self._Taxa_ref)
+            sim.setParam_Batt(C=modelo['capacidade_Ah'], Rcell=modelo['R_cell'], Ns=Ns_b, Np=Np_b, Nm=Nm_b, Vnom=modelo['tensao_nominal_V'], SoC=modelo['SOC_inicial'], C_rate_carga = modelo['c_rate_carga'], C_rate_descarga = modelo['c_rate_descarga'])
+            sim.set_Param_Batt_Aux(C=modelo_aux['capacidade_Ah'], Rcell=modelo_aux['R_cell'], Ns=Ns_aux, Np=Np_aux, Nm=Nm_aux, Vnom=modelo_aux['tensao_nominal_V'], SoC=modelo_aux['SOC_inicial'], C_rate_carga = modelo_aux['c_rate_carga'], C_rate_descarga = modelo_aux['c_rate_descarga'])
+            sim.configHist_BattAux(self._SoC_aux_ref, self._BH)
             sim.simulate(self._data, self._sheet, threshold=Pth)
             energia_rejeitada = sum(sim._p_reject) / 3600  # Wh
             # Energia absorvida é a soma das potências negativas (absorvidas) pelos sistemas
             p_batt_arr = np.array(sim._p_batt)
-            p_uc_arr = np.array(sim._p_uc)
-            uf_diff = np.array(sim._uc_diff) #?
+            p_aux_arr = np.array(sim._p_aux)
+            uf_diff = np.array(sim._batt_aux_diff) #?
             energia_absorvida = (
                 np.abs(np.sum(p_batt_arr[p_batt_arr < 0])) +
-                np.abs(np.sum(p_uc_arr[p_uc_arr < 0])) - 
+                np.abs(np.sum(p_aux_arr[p_aux_arr < 0])) - 
                 np.abs(np.sum(uf_diff))
             ) / 3600  # Wh
-            self.simulation_cache[cache_key] = (energia_rejeitada, energia_absorvida, sim._SoC, sim._SoC_UC)
+            self.simulation_cache[cache_key] = (energia_rejeitada, energia_absorvida, sim._SoC, sim._SoC_aux)
         else:
             sim = Simulation()
-            sim.setParam_Batt(C=modelo['capacidade_Ah'], Rcell=modelo['R_cell'], Ns=Ns_b, Np=Np_b, Nm=Nm_b, Vnom=modelo['tensao_nominal_V'], SoC=modelo['SOC_inicial'], T_m = modelo['c_rate'])
-            sim.setParam_UC(C=3140, Cap_uc=Cap_uc, Ns=Ns_uc, Np=Np_uc, Nm=Nm_uc, Vnom=3, SoC=i_SoC_UC, T_m=T_xuc)
-            energia_rejeitada, energia_absorvida, sim._SoC, sim._SoC_UC = self.simulation_cache[cache_key]
+            sim.setParam_Batt(C=modelo['capacidade_Ah'], Rcell=modelo['R_cell'], Ns=Ns_b, Np=Np_b, Nm=Nm_b, Vnom=modelo['tensao_nominal_V'], SoC=modelo['SOC_inicial'], C_rate_carga = modelo['c_rate_carga'], C_rate_descarga = modelo['c_rate_descarga'])
+            sim.set_Param_Batt_Aux(C=modelo_aux['capacidade_Ah'], Rcell=modelo_aux['R_cell'], Ns=Ns_aux, Np=Np_aux, Nm=Nm_aux, Vnom=modelo_aux['tensao_nominal_V'], SoC=modelo_aux['SOC_inicial'], C_rate_carga = modelo_aux['c_rate_carga'], C_rate_descarga = modelo_aux['c_rate_descarga'])
+            energia_rejeitada, energia_absorvida, sim._SoC, sim._SoC_aux = self.simulation_cache[cache_key]
 
         # Energia absorvida por ciclo (Wh)
         energia_absorvida_ciclo = energia_absorvida
-        print(f"Energia absorvida por ciclo (Nm_b: {Nm_b}, Np_b: {Np_b}, Nm_uc: {Nm_uc} Np_uc: {Np_uc}, Pth: {Pth}, Modelo: {modelo['nome']}): {energia_absorvida_ciclo} Wh")
+        print(f"Energia absorvida por ciclo (Nm_b: {Nm_b}, Np_b: {Np_b}, Nm_aux: {Nm_aux} Np_aux: {Np_aux}, Pth: {Pth}, Modelo da Bateria Principal: {modelo['nome']}, Modelo da Bateria Auxiliar: {modelo_aux['nome']}): {energia_absorvida_ciclo} Wh")
         # Número de ciclos por dia e por mês
         horas_operacao_dia = 24 * taxa_disponibilidade
         ciclos_por_dia = horas_operacao_dia / self._duracao_ciclo_operacao_hora
@@ -375,12 +368,13 @@ class MyProblem(ElementwiseProblem):
         fluxo_caixa = []
         saude_bat = []                     
         troca_bat = []                     
-        saude_uc = []                      
-        troca_uc = []                      
+        saude_aux = []                      
+        troca_aux = []                      
         mes = 0
         numero_ciclos_batt_total = 0
+        numero_ciclos_batt_total_aux = 0
         custo_bateria = total_baterias * modelo['preco_usd'] * self._cot_dolar
-        custo_supercap = total_supercaps * self._Puc * self._cot_dolar
+        custo_aux = total_bat_aux * modelo_aux['preco_usd'] * self._cot_dolar
 
         # Analise financeira mensal
         while mes < horizonte_analise_meses:
@@ -389,8 +383,8 @@ class MyProblem(ElementwiseProblem):
                 fluxo_caixa.append(-custo_inicial)      # Investimento inicial
                 saude_bat.append(100)                 # Saude da bateria em 100% no mes 0
                 troca_bat.append(0)                     # Nao a troca da bateria no mes 0 (saida ja realizada no custo inicial)
-                saude_uc.append(1)                      # Saude do UC em 100% no mes 0
-                troca_uc.append(0)                      # Nao ha troca de UC no mes 0 (saida ja realizada no custo inicial)
+                saude_aux.append(100)                      # Saude do UC em 100% no mes 0
+                troca_aux.append(0)                      # Nao ha troca de UC no mes 0 (saida ja realizada no custo inicial)
 
             else:
                 balanco_mes += economia_mensal
@@ -408,17 +402,18 @@ class MyProblem(ElementwiseProblem):
                     saude_bat.append(saude_bat_mensal)
                     troca_bat.append(0)
 
-                # Verifica substituição do supercapacitor
-                saude_uc_mensal = saude_uc[-1] - (0.2*self.ciclos_por_mes*self._duracao_ciclo_operacao_hora/horas_supercap_vida)
-                if saude_uc_mensal <= 0.8:
-                    saude_uc_mensal = 1
-                    saude_uc.append(saude_uc_mensal)
-                    troca_uc.append(1)
-                    balanco_mes += -custo_supercap
+                # Verifica substituição da segunda bateria
+                numero_ciclos_batt_total_aux +=  round(((max(sim._SoC_aux) - min(sim._SoC_aux)) / 100) * self.ciclos_por_mes)
+                if (numero_ciclos_batt_total_aux / modelo_aux['vida_ciclos']) - 1 > sum(troca_aux):  
+                    saude_aux_mensal = sim._batt_aux.batteryHealth(numero_ciclos_batt_total_aux % modelo_aux['vida_ciclos'], modelo_aux['vida_ciclos'])
+                    saude_aux.append(saude_aux_mensal)
+                    troca_aux.append(1)
+                    balanco_mes += -custo_aux
                     #Se o supercapacitor estiver com sapude abaixo de 80% é trocado por um novo
                 else:
-                    saude_uc.append(saude_uc_mensal)
-                    troca_uc.append(0)
+                    saude_aux_mensal = sim._batt.batteryHealth(numero_ciclos_batt_total_aux % modelo_aux['vida_ciclos'], modelo_aux['vida_ciclos'])
+                    saude_aux.append(saude_aux_mensal)
+                    troca_aux.append(0)
 
         
                 fluxo_caixa.append(balanco_mes)
@@ -429,7 +424,7 @@ class MyProblem(ElementwiseProblem):
         for i, fc in enumerate(fluxo_caixa):
             vpl += fc / ((1 + taxa_desconto_mensal) ** i)
 
-        print(f"VPL (Nm_b: {Nm_b}, Np_b: {Np_b}, Nm_uc: {Nm_uc} Np_uc: {Np_uc}, Pth: {Pth}, Modelo: {modelo['nome']}): {vpl}")
+        print(f"VPL (Nm_b: {Nm_b}, Np_b: {Np_b}, Nm_aux: {Nm_aux} Np_aux: {Np_aux}, Pth: {Pth}, Modelo Principal: {modelo['nome']}, Modelo Auxiliar: {modelo_aux['nome']}): {vpl}")
         print(f'Volume Total: {g1}')
         print(f'---------------------------------------------------------')
 
@@ -441,18 +436,19 @@ class MyProblem(ElementwiseProblem):
         if not hasattr(self, 'melhor_vpl') or (vpl > self.melhor_vpl and G < 0):
             self.Nm_b = Nm_b
             self.Np_b = Np_b
-            self.Nm_uc = Nm_uc
-            self.Np_uc = Np_uc
+            self.Nm_aux = Nm_aux
+            self.Np_aux = Np_aux
             self.Pth = Pth
             self.melhor_vpl = vpl
             self.volume_total = g1
             self.saude_bat = saude_bat
             self.troca_bat = troca_bat
-            self.saude_uc = saude_uc
-            self.troca_uc = troca_uc
+            self.saude_aux = saude_aux
+            self.troca_aux = troca_aux
             self.melhor_fluxo_caixa = fluxo_caixa.copy()
             self.modelo_b = modelo_b
             self.nome_modelo_b = modelo['nome']
+            self.nome_modelo_aux = modelo_aux['nome']
 
 
 class Resultados:
@@ -476,7 +472,7 @@ class Resultados:
             "melhor_vpl": self.problem.melhor_vpl,
             "volume_total": self.problem.volume_total,
             "saude_bat": self.problem.saude_bat,
-            "saude_uc": self.problem.saude_uc,
+            "saude_aux": self.problem.saude_aux,
             "troca_bat": self.problem.troca_bat,
             "xl": self.problem.xl,
             "xu": self.problem.xu,
@@ -490,7 +486,7 @@ class Resultados:
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     problem = MyProblem()
-    problem.configFluxUC2Bat(SoC_uc_ref, BH, Taxa)
+    problem.configHist_BattAux(SoC_aux_ref, BH)
     os.makedirs(diretorio_figuras, exist_ok=True)
     problem.setData(data, sheet)
 
@@ -622,7 +618,7 @@ if __name__ == "__main__":
                             0.82611320754717,
                             1,
                             0.9565283018867925]
-        problem.saude_uc = [1,
+        problem.saude_aux = [1,
                             0.9998848,
                             0.9997696,
                             0.9996544,
